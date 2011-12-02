@@ -4,11 +4,6 @@ import urllib2
 import re
 import time
  
-# TODO
-# write to file
-# record and estimate timing
-# functionality to specific paths and size
- 
 bug_dict = {}
 err_dict = {}
 bug_loc = './bugs.js'
@@ -54,7 +49,6 @@ print 'Building dictionary of bug patterns to be searched for.'
 i=0
 for bug in bug_data["bugs"]:
         try:
-                #TODO: Make list safe
                 bug_pattern = bug["pattern"].replace('*)?','*)')
                 bug_regex = re.compile(bug_pattern)
                 bug_dict[bug["name"]]=bug_regex
