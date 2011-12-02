@@ -13,8 +13,9 @@ bug_dict = {}
 err_dict = {}
 bug_loc = './bugs.js'
 site_loc = './top-100000.csv'
-maxurls = 100000
-out_loc = './foundbugs.csv'
+start_url = 1
+end_url = 100000
+out_loc = './foundbugs1.csv'
 
 print 'Loading Ghostery bug data from ' + bug_loc
 try:
@@ -77,11 +78,13 @@ except Exception as ex:
 print 'Pre processing complete.'
 print ''
  
-print 'Beginning to parse URLs to identify bug patterns. Stopping at ' + str(maxurls) + ' URLs'
+print 'Beginning to parse URLs to identify bug patterns. Starting at URL' + str(start_url) + ' and stopping at URL ' + str(end_url)
 b = 0
 u = 0
 e = 0
 count=0
+urls = end_url - start_url + 1
+print 'Processing ' + str(urls) + ' urls'
 url=''
 fullurl = ''
 headreg = re.compile("<head>.*</head>",re.IGNORECASE|re.MULTILINE|re.DOTALL)
@@ -89,14 +92,20 @@ start=time.clock()
 for site in site_reader:
         try:              
                 count=count+1 #pre increment - this is always hit
-                if count > maxurls:
-                        print 'Maximum number of URLs processed. Stopping...'               
+                if count < start_url:
+                        continue
+                
+                if count > end_url:
+                        print 'Last URL processed. Stopping...'               
                         break
  
                 if count%10 == 0:
                         dur=time.clock()-start
-                        print 'Processed ' +str(count)+ ' URLs. Time elapsed: ' + str(dur)
-                        print 'Est. time remaining for ' + str(maxurls) + ' URLs: ' + str(int(dur/count*maxurls/3600)) + 'hrs'
+                        print 'Processed ' +str(count-start_url)+ ' URLs. Time elapsed: ' + str(dur)
+                        processed = count-start_url
+                        if processed == 0:
+                                processed = 1
+                        print 'Est. time remaining for ' + str(urls) + ' URLs: ' + str(int(dur/(processed)*(urls-processed))) + 'secs'
                
                 url=site[1]
                 fullurl = 'http://www.'+url
@@ -104,7 +113,7 @@ for site in site_reader:
                 #Process site
                 #print 'Processing URL ' + url
                 
-                usock = urllib2.urlopen(fullurl)
+                usock = urllib2.urlopen(fullurl,None,5)
                 data = usock.read()
                 usock.close()
 
